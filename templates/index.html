@@ -36,27 +36,55 @@
   {% endif %}
 {% endwith %}
 
+<h1>Create Memo</h1>
+
+<form action="/create">
+  <input type="submit" value="create">
+</form>
+
 <h1>Memos</h1>
 
+<!-- {% set count = 1 %} -->
 {% if session.memos %}
-    {% for memo in session.memos %}
+  {% for memo in session.memos %}
   <div class="memo">
-  <div class="row">
-  <div class="col-md-2">
-    {{ memo.date | humanize }}
-  </div>
-  <div class="col-md-10">
-    {{ memo.text }}
-  </div>
-  </div> <!-- row -->
+    <div class="row">
+      <div class="subrow" style="border: thin solid black">
+        <div class="col-md-2">
+          {{ memo.date | humanize }}
+        </div>
+        <div class="col-md-8" id="memo">
+          {{ memo.text }}
+        </div>
+      </div>
+      <div class="col-md-2">
+        <button id="btnDel" onclick="del_memo('{{memo._id}}')">Delete memo</button> 
+      </div>
+      <!-- {% set count = count + 1 %} -->
+    </div> <!-- row -->
   </div> <!-- memo -->
+  <br>
   {% endfor %}
 {% else %}
   <p>No memos for you. </p>  
 {% endif %}
 
- 
-
 </div> <!-- container -->
+
+<script type="text/javascript">
+
+  $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+  function del_memo(memo_id) {
+
+      // AJAX request
+      $.getJSON($SCRIPT_ROOT + '/_del_memo', { _id: memo_id } ); // End of the call to getJSON
+
+      location.reload(true);
+
+  };  // End of the function to be called when field changes
+
+</script>
+
 </body>
 </html>

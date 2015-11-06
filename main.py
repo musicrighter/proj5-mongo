@@ -30,6 +30,7 @@ from dateutil import tz  # For interpreting local times
 # Mongo database
 from pymongo import MongoClient
 
+from bson import ObjectId
 
 ###
 # Globals
@@ -64,11 +65,31 @@ def index():
   return flask.render_template('index.html')
 
 
-# We don't have an interface for creating memos yet
-# @app.route("/create")
-# def create():
-#     app.logger.debug("Create")
-#     return flask.render_template('create.html')
+@app.route("/create")
+def create():
+    app.logger.debug("Create")
+    return flask.render_template('create.html')
+
+
+@app.route("/_add_memo")
+def add_memo():
+    date = request.args.get('date', 0, type=str)
+    memo = request.args.get('memo', 0, type=str)
+    date = format_arrow_date(date)
+
+    if (date != "(bad date)"):
+      put_memo(date, memo)
+    else:
+      return jsonify(wrong=date)
+
+    return
+
+
+@app.route("/_del_memo")
+def del_memo():
+    memo_id = request.args.get('_id', 0, type=str)
+    collection.remove({'_id': ObjectId(memo_id)})
+    return
 
 
 @app.errorhandler(404)
@@ -84,14 +105,13 @@ def page_not_found(error):
 #
 #################
 
-# NOT TESTED with this application; may need revision 
-#@app.template_filter( 'fmtdate' )
-# def format_arrow_date( date ):
-#     try: 
-#         normal = arrow.get( date )
-#         return normal.to('local').format("ddd MM/DD/YYYY")
-#     except:
-#         return "(bad date)"
+@app.template_filter( 'fmtdate' )
+def format_arrow_date( date ):
+    try: 
+        normal = arrow.get(date, "MM/DD/YYYY")
+        return normal.to('local')
+    except:
+        return "(bad date)"
 
 @app.template_filter( 'humanize' )
 def humanize_arrow_date( date ):
@@ -126,27 +146,26 @@ def get_memos():
     can be inserted directly in the 'session' object.
     """
     records = [ ]
-    for record in collection.find( { "type": "dated_memo" } ):
+    for record in collection.find( { "type": "dated_memo" } ).sort("date", 1):
         record['date'] = arrow.get(record['date']).isoformat()
-        del record['_id']
+        record["_id"] = str(record["_id"])
         records.append(record)
     return records 
 
 
-# def put_memo(dt, mem):
-#     """
-#     Place memo into database
-#     Args:
-#        dt: Datetime (arrow) object
-#        mem: Text of memo
-#     NOT TESTED YET
-#     """
-#     record = { "type": "dated_memo", 
-#                "date": dt.to('utc').naive,
-#                "text": mem
-#             }
-#     collection.insert(record)
-#     return 
+def put_memo(dt, mem):
+    """
+    Place memo into database
+    Args:
+       dt: Datetime (arrow) object
+       mem: Text of memo
+    """
+    record = { "type": "dated_memo", 
+               "date": dt.to('utc').naive,
+               "text": mem
+            }
+    collection.insert(record)
+    return 
 
 
 if __name__ == "__main__":
