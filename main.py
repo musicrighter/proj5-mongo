@@ -77,11 +77,7 @@ def add_memo():
     memo = request.args.get('memo', 0, type=str)
     date = format_arrow_date(date)
 
-    if (date != "(bad date)"):
-      put_memo(date, memo)
-    else:
-      message = "bad"
-      return jsonify(result=message)
+    put_memo(date, memo)
 
     return flask.redirect(url_for('index'))
 
