@@ -80,16 +80,17 @@ def add_memo():
     if (date != "(bad date)"):
       put_memo(date, memo)
     else:
-      return jsonify(wrong=date)
+      message = "bad"
+      return jsonify(result=message)
 
-    return
+    return flask.redirect(url_for('index'))
 
 
 @app.route("/_del_memo")
 def del_memo():
     memo_id = request.args.get('_id', 0, type=str)
     collection.remove({'_id': ObjectId(memo_id)})
-    return
+    return flask.redirect(url_for('index'))
 
 
 @app.errorhandler(404)

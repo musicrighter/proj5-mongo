@@ -80,7 +80,7 @@
       // AJAX request
       $.getJSON($SCRIPT_ROOT + '/_del_memo', { _id: memo_id } ); // End of the call to getJSON
 
-      location.reload(true);
+      setTimeout(function(){ location.reload(true); }, 100);
 
   };  // End of the function to be called when field changes
 

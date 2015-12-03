@@ -11,6 +11,6 @@ import random
 #MONGO_URL = "mongodb://memo:iremember@localhost:27333/memos"  # on Gnat
 
 ### On ix.cs.uoregon.edu (Michal Young's instance of MongoDB)
-PORT=random.randint(5000,8000)
+PORT=4567
 DEBUG = False # Because it's unsafe to run outside localhost
 MONGO_URL =  "mongodb://end_user:enroute@localhost:4080/memos"  # on ix
